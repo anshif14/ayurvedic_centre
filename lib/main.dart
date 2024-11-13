@@ -1,8 +1,15 @@
-import 'package:flutter/cupertino.dart';
+import 'package:ayurvedic_centre/features/auth/screens/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'core/providers/authProvider.dart';
+
+var height;
+var width;
 
 void main(){
-  runApp(MyApp());
+
+  runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
@@ -15,6 +22,16 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp();
+    height = MediaQuery.of(context).size.height;
+    width = MediaQuery.of(context).size.width;
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => LoginProvider()),
+      ],
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home:Splashscreen() ,
+      ),
+    );
   }
 }
