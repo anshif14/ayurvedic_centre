@@ -1,11 +1,16 @@
 import 'package:ayurvedic_centre/features/auth/screens/splashScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'core/providers/authProvider.dart';
+import 'core/providers/patient_provider.dart';
+import 'features/auth/controller/auth_controller.dart';
+import 'features/home/screens/home_screen.dart';
 
 var height;
 var width;
+String? currentUserToken;
 
 void main(){
 
@@ -20,6 +25,9 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
+
+
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
@@ -27,10 +35,19 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
+        ChangeNotifierProvider(create: (_) => PatientProvider()),
       ],
-      child: const MaterialApp(
-        debugShowCheckedModeBanner: false,
-        home:Splashscreen() ,
+      child:  GestureDetector(
+        onTap: () {
+          FocusManager.instance.primaryFocus!.unfocus();
+        },
+        child: MaterialApp(
+          theme: ThemeData(
+            textTheme: GoogleFonts.poppinsTextTheme()
+          ),
+          debugShowCheckedModeBanner: false,
+          home:Splashscreen() ,
+        ),
       ),
     );
   }
