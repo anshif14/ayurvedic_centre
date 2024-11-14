@@ -43,6 +43,9 @@ dependencies:
   shimmer: 2.0.0
   pdf: ^3.6.0
   printing: ^5.7.0
+  intl:
+  permission_handler:
+  path_provider:
 
 dev_dependencies:
   flutter_test:

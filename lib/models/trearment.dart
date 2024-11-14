@@ -12,35 +12,100 @@ String treatmentModelToJson(TreatmentModel data) => json.encode(data.toJson());
 class TreatmentModel {
   final bool status;
   final String message;
-  final List<Branch> branches;
+  final List<Treatment> treatments;
 
   TreatmentModel({
     required this.status,
     required this.message,
-    required this.branches,
+    required this.treatments,
   });
 
   TreatmentModel copyWith({
     bool? status,
     String? message,
-    List<Branch>? branches,
+    List<Treatment>? treatments,
   }) =>
       TreatmentModel(
         status: status ?? this.status,
         message: message ?? this.message,
-        branches: branches ?? this.branches,
+        treatments: treatments ?? this.treatments,
       );
 
   factory TreatmentModel.fromJson(Map<String, dynamic> json) => TreatmentModel(
     status: json["status"],
     message: json["message"],
-    branches: List<Branch>.from(json["branches"].map((x) => Branch.fromJson(x))),
+    treatments: List<Treatment>.from(json["treatments"].map((x) => Treatment.fromJson(x))),
   );
 
   Map<String, dynamic> toJson() => {
     "status": status,
     "message": message,
+    "treatments": List<dynamic>.from(treatments.map((x) => x.toJson())),
+  };
+}
+
+class Treatment {
+  final int id;
+  final List<Branch> branches;
+  final String name;
+  final String duration;
+  final String price;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  Treatment({
+    required this.id,
+    required this.branches,
+    required this.name,
+    required this.duration,
+    required this.price,
+    required this.isActive,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  Treatment copyWith({
+    int? id,
+    List<Branch>? branches,
+    String? name,
+    String? duration,
+    String? price,
+    bool? isActive,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+  }) =>
+      Treatment(
+        id: id ?? this.id,
+        branches: branches ?? this.branches,
+        name: name ?? this.name,
+        duration: duration ?? this.duration,
+        price: price ?? this.price,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+
+  factory Treatment.fromJson(Map<String, dynamic> json) => Treatment(
+    id: json["id"],
+    branches: List<Branch>.from(json["branches"].map((x) => Branch.fromJson(x))),
+    name: json["name"],
+    duration: json["duration"],
+    price: json["price"],
+    isActive: json["is_active"],
+    createdAt: DateTime.parse(json["created_at"]),
+    updatedAt: DateTime.parse(json["updated_at"]),
+  );
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
     "branches": List<dynamic>.from(branches.map((x) => x.toJson())),
+    "name": name,
+    "duration": duration,
+    "price": price,
+    "is_active": isActive,
+    "created_at": createdAt.toIso8601String(),
+    "updated_at": updatedAt.toIso8601String(),
   };
 }
 
@@ -48,10 +113,10 @@ class Branch {
   final int id;
   final String name;
   final int patientsCount;
-  final String location;
-  final String phone;
-  final String mail;
-  final String address;
+  final Location location;
+  final Phone phone;
+  final Mail mail;
+  final Address address;
   final String gst;
   final bool isActive;
 
@@ -71,10 +136,10 @@ class Branch {
     int? id,
     String? name,
     int? patientsCount,
-    String? location,
-    String? phone,
-    String? mail,
-    String? address,
+    Location? location,
+    Phone? phone,
+    Mail? mail,
+    Address? address,
     String? gst,
     bool? isActive,
   }) =>
@@ -94,10 +159,10 @@ class Branch {
     id: json["id"],
     name: json["name"],
     patientsCount: json["patients_count"],
-    location: json["location"],
-    phone: json["phone"],
-    mail: json["mail"],
-    address: json["address"],
+    location: locationValues.map[json["location"]]!,
+    phone: phoneValues.map[json["phone"]]!,
+    mail: mailValues.map[json["mail"]]!,
+    address: addressValues.map[json["address"]]!,
     gst: json["gst"],
     isActive: json["is_active"],
   );
@@ -106,11 +171,67 @@ class Branch {
     "id": id,
     "name": name,
     "patients_count": patientsCount,
-    "location": location,
-    "phone": phone,
-    "mail": mail,
-    "address": address,
+    "location": locationValues.reverse[location],
+    "phone": phoneValues.reverse[phone],
+    "mail": mailValues.reverse[mail],
+    "address": addressValues.reverse[address],
     "gst": gst,
     "is_active": isActive,
   };
+}
+
+enum Address {
+  KOCHI_KERALA_685565,
+  KOTTAYAM_KERALA_686563,
+  KOZHIKODE
+}
+
+final addressValues = EnumValues({
+  "Kochi, Kerala-685565": Address.KOCHI_KERALA_685565,
+  "Kottayam, Kerala-686563": Address.KOTTAYAM_KERALA_686563,
+  "Kozhikode": Address.KOZHIKODE
+});
+
+enum Location {
+  KOCHI,
+  KOZHIKODE,
+  KUMARAKOM_KOTTAYAM
+}
+
+final locationValues = EnumValues({
+  "Kochi": Location.KOCHI,
+  "Kozhikode": Location.KOZHIKODE,
+  "Kumarakom, Kottayam": Location.KUMARAKOM_KOTTAYAM
+});
+
+enum Mail {
+  USER123_GMAIL_COM
+}
+
+final mailValues = EnumValues({
+  "user123@gmail.com": Mail.USER123_GMAIL_COM
+});
+
+enum Phone {
+  PHONE_99463314529747331452,
+  THE_9846123456,
+  THE_99463314529747331452
+}
+
+final phoneValues = EnumValues({
+  "9946331452, 9747331452": Phone.PHONE_99463314529747331452,
+  "9846123456": Phone.THE_9846123456,
+  "9946331452,9747331452": Phone.THE_99463314529747331452
+});
+
+class EnumValues<T> {
+  Map<String, T> map;
+  late Map<T, String> reverseMap;
+
+  EnumValues(this.map);
+
+  Map<T, String> get reverse {
+    reverseMap = map.map((k, v) => MapEntry(v, k));
+    return reverseMap;
+  }
 }

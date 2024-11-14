@@ -49,7 +49,10 @@ class _MyAppState extends State<MyApp> {
         },
         child: MaterialApp(
           theme: ThemeData(
-            textTheme: GoogleFonts.poppinsTextTheme()
+            textTheme: GoogleFonts.poppinsTextTheme(),
+            bottomSheetTheme: BottomSheetThemeData(
+              backgroundColor: Colors.white
+            )
           ),
           debugShowCheckedModeBanner: false,
           home:  Splashscreen() ,

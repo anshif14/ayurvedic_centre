@@ -1,16 +1,21 @@
+import 'package:ayurvedic_centre/core/common/PdfGenerator.dart';
 import 'package:ayurvedic_centre/core/providers/patient_provider.dart';
 import 'package:ayurvedic_centre/core/providers/treatment_provider.dart';
+import 'package:ayurvedic_centre/models/generate_pdf_model.dart';
 import 'package:ayurvedic_centre/models/patientModel.dart';
 import 'package:ayurvedic_centre/services/api_service.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/common/color_palette.dart';
+import '../../../core/common/genetatePdf.dart';
 import '../../../core/providers/branch_provider.dart';
 import '../../../main.dart';
 import '../../../models/branchModel.dart' as branch;
+import '../../../models/trearment.dart' as treatmentModel;
 
 class RegisterScreen extends StatefulWidget {
   @override
@@ -52,7 +57,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
         borderSide: BorderSide(width: 0.8, color: Color(0x1a000000)),
         borderRadius: BorderRadius.circular(10),
       ),
-      fillColor: Color(0xFFF7F7F7), // Adjust according to `ColorPalette.textFieldBackground`
+      fillColor: Color(
+          0xFFF7F7F7), // Adjust according to `ColorPalette.textFieldBackground`
       filled: true,
       hintStyle: GoogleFonts.inter(fontWeight: FontWeight.w300),
       border: OutlineInputBorder(
@@ -66,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   List<int> selectedTreatments = [];
   // Other form fields and variables...
 
-  List<Branch> branchesList =[];
+  List<Branch> branchesList = [];
 
   @override
   void initState() {
@@ -105,17 +111,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     final treatmentProvider = Provider.of<TreatmentProvider>(context);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      branchProvider.fetchBranches();
-      treatmentProvider.fetchTreatments();
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   branchProvider.fetchBranches();
+    //   treatmentProvider.fetchTreatments();
+    // });
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-
         surfaceTintColor: Colors.white,
-        title: Text('Register'),
+        title: GestureDetector(
+            onTap: () {
+              ApiService().fetchTreatments();
+            },
+            child: Text('Register')),
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -128,19 +137,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
               TextFormField(
                 controller: nameController,
                 decoration: customInputDecoration("Enter your full name"),
-                validator: (value) => value!.isEmpty ? 'Name is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Name is required' : null,
               ),
               SizedBox(height: 16),
               TextFormField(
                 controller: whatsappController,
                 decoration: customInputDecoration("Enter your WhatsApp number"),
-                validator: (value) => value!.isEmpty ? 'WhatsApp number is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'WhatsApp number is required' : null,
               ),
               SizedBox(height: 16),
               TextFormField(
                 controller: addressController,
                 decoration: customInputDecoration("Enter your full address"),
-                validator: (value) => value!.isEmpty ? 'Address is required' : null,
+                validator: (value) =>
+                    value!.isEmpty ? 'Address is required' : null,
               ),
               SizedBox(height: 16),
               // DropdownButtonFormField<String>(
@@ -166,37 +178,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       );
                     }).toList(),
                     value: selectedLocation,
-
-                    onChanged: (value) => setState(() => selectedLocation = value),
-                    validator: (value) => value == null ? 'Location is required' : null,
+                    onChanged: (value) =>
+                        setState(() => selectedLocation = value),
+                    validator: (value) =>
+                        value == null ? 'Location is required' : null,
                   );
                 },
               ),
               SizedBox(height: 16),
 
-
-            Consumer<BranchProvider>(
-              builder: (context, branchProvider, child) {
-                return DropdownButtonFormField<String>(
-                  decoration: customInputDecoration("Select the branch"),
-                  items: branchProvider.branches.map((branch) {
-                    return DropdownMenuItem<String>(
-                      value: branch.id.toString(),
-                      child: Text(branch.name),
-                    );
-                  }).toList(),
-                  value: selectedBranch,
-                  onChanged: (value) {
-                    setState(() {
-                      selectedBranch = value;
-                    });
-                  },
-                  validator: (value) =>
-                  value == null ? 'Branch is required' : null,
-                );
-              },
-            ),
-
+              Consumer<BranchProvider>(
+                builder: (context, branchProvider, child) {
+                  return DropdownButtonFormField<String>(
+                    decoration: customInputDecoration("Select the branch"),
+                    items: branchProvider.branches.map((branch) {
+                      return DropdownMenuItem<String>(
+                        value: branch.id.toString(),
+                        child: Text(branch.name),
+                      );
+                    }).toList(),
+                    value: selectedBranch,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedBranch = value;
+                      });
+                    },
+                    validator: (value) =>
+                        value == null ? 'Branch is required' : null,
+                  );
+                },
+              ),
 
               SizedBox(height: 16),
 
@@ -257,11 +268,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     child: Column(
                       children: [
-
                         ListTile(
-                          leading: Text('1',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600),),
-                          title: Text("Couple Combo package i..." ,overflow: TextOverflow.ellipsis,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w600)),
-                          trailing:  Icon(CupertinoIcons.clear_circled_solid,color: Color.fromRGBO(242, 30, 30, 0.5),size: 30,),
+                          leading: Text(
+                            '1',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600),
+                          ),
+                          title: Text("Couple Combo package i...",
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                  fontSize: 16, fontWeight: FontWeight.w600)),
+                          trailing: Icon(
+                            CupertinoIcons.clear_circled_solid,
+                            color: Color.fromRGBO(242, 30, 30, 0.5),
+                            size: 30,
+                          ),
                         ),
                         // Text(
                         //   "1. ,
@@ -272,11 +293,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
                             Wrap(
-                             crossAxisAlignment : WrapCrossAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text("Male",style: TextStyle(color: ColorPalette.primaryColor),),
+                                  child: Text(
+                                    "Male",
+                                    style: TextStyle(
+                                        color: ColorPalette.primaryColor),
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Container(
@@ -292,13 +317,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               ],
                             ),
                             const SizedBox(width: 16),
-
                             Wrap(
-                              crossAxisAlignment : WrapCrossAlignment.center,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 Padding(
                                   padding: const EdgeInsets.all(8.0),
-                                  child: Text("Female",style: TextStyle(color: ColorPalette.primaryColor),),
+                                  child: Text(
+                                    "Female",
+                                    style: TextStyle(
+                                        color: ColorPalette.primaryColor),
+                                  ),
                                 ),
                                 const SizedBox(height: 4),
                                 Container(
@@ -313,7 +341,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 ),
                               ],
                             ),
-
                             IconButton(
                               icon: Icon(Icons.edit, color: Colors.green),
                               onPressed: () {
@@ -323,29 +350,32 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ],
                         ),
                         const SizedBox(width: 16),
-
-
                       ],
                     ),
                   ),
                   const SizedBox(height: 16),
                   Container(
-                    width: width*0.9,
+                    width: width * 0.9,
                     height: 60,
                     child: ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async{
 
+                        treatmentModel.TreatmentModel treatment = await treatmentProvider.fetchTreatments();
                         showDialog(
                           context: context,
                           builder: (BuildContext context) {
-                            return addTreatmentDialogue();
+
+// // return StatefulBuilder(builder: (context, setState) {
+//  return addTreatmentDialogue(treatment:  treatment );
+// // },);
+
+                            return addPatientsAlert(treatment:  treatment);
                           },
                         );
                         // Add Treatments action
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color.fromRGBO(56, 154, 72, 0.3)
-                      ,
+                        backgroundColor: Color.fromRGBO(56, 154, 72, 0.3),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
@@ -428,76 +458,133 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: TextFormField(
                     decoration: customInputDecoration("Treatment Date"),
                     controller: TextEditingController(
-                      text: treatmentDate != null ? treatmentDate.toString().split(' ')[0] : '',
+                      text: treatmentDate != null
+                          ? treatmentDate.toString().split(' ')[0]
+                          : '',
                     ),
-                    validator: (value) => value!.isEmpty ? 'Date is required' : null,
+                    validator: (value) =>
+                        value!.isEmpty ? 'Date is required' : null,
                   ),
                 ),
               ),
-              SizedBox(height:100 ),
-
-
+              SizedBox(height: 100),
             ],
           ),
         ),
       ),
       bottomSheet:
+          Consumer<PatientProvider>(builder: (context, provider, child) {
+        return SizedBox(
+          height: 80,
+          width: double.infinity,
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: SizedBox(
+                width: width * 0.9,
+                child: ElevatedButton(
+                  onPressed: () {
+                 GeneratePdfModel   pdfModel =
 
-      Consumer<PatientProvider>(
-        builder: (context, provider, child) {
-          return SizedBox(
-            height:80 ,
-            width: double.infinity,
-            child: Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: SizedBox(
-                  width: width*0.9,
-                  child: ElevatedButton(
-                    onPressed: () {
+                 // kDebugMode?
+                 // GeneratePdfModel(
+                 //      name: "John Doe",
+                 //      executive: "Dr. Smith",
+                 //      payment: "Cash",
+                 //      phone: "1234567890",
+                 //      address: "Kochi, Kerala",
+                 //      totalAmount: 1000.0,
+                 //      discountAmount: 100.0,
+                 //      advanceAmount: 200.0,
+                 //      balanceAmount: 700.0,
+                 //      dateNdTime: "01/02/2024-10:24 AM",
+                 //      maleTreatments: "1,2",
+                 //      femaleTreatments: "3,4",
+                 //      branch: selectedBranch.toString(),
+                 //      treatments: selectedTreatments
+                 //
+                 //    ):
+                 GeneratePdfModel(
+                     name: nameController.text,
+                     executive: 'execuove',
+                     payment: paymentOption.toString(),
+                     phone: whatsappController.text,
+                     address: addressController.text,
+                     totalAmount:
+                         double.tryParse(totalAmountController.text) ?? 0,
+                     discountAmount:
+                         double.tryParse(discountAmountController.text) ?? 0,
+                     advanceAmount:
+                         double.tryParse(advanceAmountController.text) ?? 0,
+                     balanceAmount:
+                         double.tryParse(balanceAmountController.text) ?? 0,
+                     dateNdTime: treatmentDate.toString(),
+                     maleTreatments: maleCount.toString(),
+                     femaleTreatments: femaleCount.toString(),
+                     branch: selectedBranch.toString(),
+                     treatments: selectedTreatments);
 
-                      ApiService().registerPatient(
-                        name: "John Doe",
-                        executive: "Dr. Smith",
-                        payment: "Cash",
-                        phone: "1234567890",
-                        address: "Kochi, Kerala",
-                        totalAmount: 1000.0,
-                        discountAmount: 100.0,
-                        advanceAmount: 200.0,
-                        balanceAmount: 700.0,
-                        dateNdTime: "01/02/2024-10:24 AM",
-                        maleTreatments: "1,2",
-                        femaleTreatments: "3,4",
-                        branch: selectedBranch.toString(),
-                        treatments: selectedTreatments??[],
-                      );
+                 ;
 
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: ColorPalette.primaryColor, // Button color
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
+                 generatePdfFunction(pdfmodel: pdfModel);
+
+
+
+
+                    // generatePdf(
+                    //     name: nameController.text,
+                    //     executive: 'execuove',
+                    //     payment: paymentOption.toString(),
+                    //     phone: whatsappController.text,
+                    //     address: addressController.text,
+                    //     totalAmount:
+                    //         double.tryParse(totalAmountController.text) ?? 0,
+                    //     discountAmount:
+                    //         double.tryParse(discountAmountController.text) ?? 0,
+                    //     advanceAmount:
+                    //         double.tryParse(advanceAmountController.text) ?? 0,
+                    //     balanceAmount:
+                    //         double.tryParse(balanceAmountController.text) ?? 0,
+                    //     dateNdTime: treatmentDate.toString(),
+                    //     maleTreatments: maleCount.toString(),
+                    //     femaleTreatments: femaleCount.toString(),
+                    //     branch: selectedBranch.toString(),
+                    //     treatments: selectedTreatments);
+
+
+
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: ColorPalette.primaryColor, // Button color
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      child: Text(
-                        "Register now",
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w600),
-                      ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 15),
+                    child: Text(
+                      "Register now",
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
               ),
             ),
-          );
-        }
-      ),
+          ),
+        );
+      }),
     );
   }
-  addTreatmentDialogue(){
+
+
+
+
+  addTreatmentDialogue({required treatmentModel.TreatmentModel treatment }) {
+    int ? selectedTreatment;
+    int maleCount = 0;
+    int femaleCount = 0;
+    print(maleCount);
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -514,27 +601,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                        hintText: "Choose preferred treatment",
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
-                  Icon(Icons.arrow_drop_down, color: Colors.grey),
-                ],
-              ),
+            DropdownButtonFormField(
+              isExpanded: true,
+              decoration: customInputDecoration("Choose your treatment"),
+              items: treatment.treatments
+                  .map((location) => DropdownMenuItem(
+
+                value: location.id,
+                child: Text(location.name,overflow: TextOverflow.ellipsis,),
+              ))
+                  .toList(),
+              onChanged: (value) => setState(() => selectedTreatment = value),
+              validator: (value) => value == null ? 'Location is required' : null,
             ),
+
             const SizedBox(height: 16),
             Text(
               "Add Patients",
@@ -542,93 +622,87 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ),
             const SizedBox(height: 8),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text("Male"),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.remove, color: Colors.white),
-                            color: Colors.green,
-                            onPressed: () {
-                              // Decrease male count
-                            },
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text("0"), // Display male count here
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add, color: Colors.white),
-                            color: Colors.green,
-                            onPressed: () {
-                              // Increase male count
-                            },
-                          ),
-                        ],
-                      ),
-                    ],
+                Container(
+                  height: 50,
+                  width: 100,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(5),
                   ),
+                  child: Text("Male"), // Display male count here
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    children: [
-                      Text("Female"),
-                      const SizedBox(height: 4),
-                      Row(
-                        children: [
-                          IconButton(
-                            icon: Icon(Icons.remove, color: Colors.white),
-                            color: Colors.green,
-                            onPressed: () {
-                              // Decrease female count
-                            },
-                          ),
-                          Expanded(
-                            child: Container(
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(5),
-                              ),
-                              child: Text("0"), // Display female count here
-                            ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.add, color: Colors.white),
-                            color: Colors.green,
-                            onPressed: () {
-                              // Increase female count
-                            },
-                          ),
-                        ],
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                     maleCount =    maleCount+1;
+                     setState(() {
+
+                     });
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                          color: Color(0xff006837)
+                        ,shape: BoxShape.circle),
+                        child: Center(child: Text('-',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
                       ),
-                    ],
-                  ),
-                ),
+                    ),
+                    SizedBox(width: 10,),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        // color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(maleCount.toString()), // Display male count here
+                    ),
+                    SizedBox(width: 10,),
+                    GestureDetector(
+                      onTap: () {
+                        if(maleCount>0){
+                         maleCount =  maleCount-1;
+                          setState(() {
+
+                          });
+
+                        }
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff006837)
+                            ,shape: BoxShape.circle),
+                        child: Center(child: Text('+',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
+                      ),
+                    ),
+
+                  ],
+                )
               ],
             ),
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -646,12 +720,301 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 }
 
+List _patientList = [];
+
+class addPatientsAlert extends StatefulWidget {
+  const addPatientsAlert({super.key, required this.treatment});
+  final treatmentModel.TreatmentModel treatment;
+
+  @override
+  State<addPatientsAlert> createState() => _addPatientsAlertState();
+}
+
+class _addPatientsAlertState extends State<addPatientsAlert> {
+  int ? selectedTreatment;
+  String ? selectedTreatmentName;
+  int maleCount = 1;
+  int femaleCount = 0;
+
+  @override
+  Widget build(BuildContext context) {
+print(maleCount);
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      backgroundColor: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Choose Treatment",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField(
+              isExpanded: true,
+              decoration: customInputDecoration("Choose your treatment"),
+              items: widget.treatment.treatments
+                  .map((location) => DropdownMenuItem(
+
+                value: location.id,
+                child: Text(location.name,overflow: TextOverflow.ellipsis,),
+              ))
+                  .toList(),
+              onChanged: (value) {
+
+
+                setState(() => selectedTreatment = value);},
+              validator: (value) => value == null ? 'Location is required' : null,
+            ),
+
+            const SizedBox(height: 16),
+            Text(
+              "Add Patients",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  height: 50,
+                  width: 100,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text("Male"), // Display male count here
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        if(maleCount>1) {
+                          maleCount = maleCount - 1;
+                          setState(() {
+
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff006837)
+                            ,shape: BoxShape.circle),
+                        child: Center(child: Text('-',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
+                      ),
+                    ),
+                    SizedBox(width: 10,),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        // color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(maleCount.toString()), // Display male count here
+                    ),
+                    SizedBox(width: 10,),
+                    GestureDetector(
+                      onTap: () {
+
+                          maleCount =  maleCount+1;
+
+                          setState(() {
+
+                          });;
+
+
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff006837)
+                            ,shape: BoxShape.circle),
+                        child: Center(child: Text('+',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
+                      ),
+                    ),
+
+                  ],
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                  height: 50,
+                  width: 100,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Text("Female"), // Display male count here
+                ),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+
+                        if(femaleCount>1) {
+                          femaleCount = femaleCount - 1;
+                          setState(() {
+
+                          });
+                        }
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff006837)
+                            ,shape: BoxShape.circle),
+                        child: Center(child: Text('-',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
+                      ),
+                    ),
+                    SizedBox(width: 10,),
+                    Container(
+                      height: 50,
+                      width: 50,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        // color: Colors.grey[200],
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(femaleCount.toString()), // Display male count here
+                    ),
+                    SizedBox(width: 10,),
+                    GestureDetector(
+                      onTap: () {
+
+                          femaleCount =  femaleCount+1;
+
+                          setState(() {
+
+                          });;
+
+
+                      },
+                      child: Container(
+                        height: 40,
+                        width: 40,
+                        decoration: BoxDecoration(
+                            color: Color(0xff006837)
+                            ,shape: BoxShape.circle),
+                        child: Center(child: Text('+',style: TextStyle(
+                            fontSize: 30,
+                            color: Colors.white,fontWeight: FontWeight.w700),)),
+                      ),
+                    ),
+
+                  ],
+                )
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Container(
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: () {
+
+                          if(selectedTreatment == null){
+                            return;
+
+                          }
+                          _patientList.add({
+                            'treatment_id':selectedTreatment,
+                            'treatment_name':selectedTreatmentName
+                          });
+
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:selectedTreatment == null?Colors.grey: ColorPalette.primaryColor,
+                          padding:
+                          const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          "Save",
+                          style: TextStyle(color: Colors.white,fontWeight: FontWeight.w600,fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+  InputDecoration customInputDecoration(String hintText) {
+    return InputDecoration(
+      hintText: hintText,
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(width: 0.8, color: Color(0x1a000000)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(width: 0.8, color: Color(0x1a000000)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(width: 0.8, color: Color(0x1a000000)),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      fillColor: Color(
+          0xFFF7F7F7), // Adjust according to `ColorPalette.textFieldBackground`
+      filled: true,
+      hintStyle: GoogleFonts.inter(fontWeight: FontWeight.w300),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(10),
+      ),
+    );
+  }
+
+}
+
+
+
 class CounterButton extends StatelessWidget {
   final int count;
   final VoidCallback onIncrement;
   final VoidCallback onDecrement;
 
-  CounterButton({required this.count, required this.onIncrement, required this.onDecrement});
+  CounterButton(
+      {required this.count,
+      required this.onIncrement,
+      required this.onDecrement});
 
   @override
   Widget build(BuildContext context) {

@@ -14,24 +14,21 @@ class TreatmentProvider with ChangeNotifier {
   String? get errorMessage => _errorMessage;
 
   // Fetch treatments from the API
-  Future<void> fetchTreatments() async {
+  Future<TreatmentModel> fetchTreatments() async {
     _isLoading = true;
     _errorMessage = null; // Reset any error message
     notifyListeners();
 
-    try {
+
       // Fetch the data from API
       TreatmentModel treatmentResponse = await ApiService().fetchTreatments();
 
-
+print(treatmentResponse.treatments);
       // _treatments = treatmentResponse.branches;
-    } catch (error) {
-      // Handle the error by setting an error message
-      _errorMessage = 'Failed to load treatments: $error';
-      _treatments = []; // Clear the treatments list if there's an error
+      return treatmentResponse;
     }
 
-    _isLoading = false;
+    // _isLoading = false;
     notifyListeners(); // Notify listeners after the data is fetched or an error occurs
   }
-}
+// }

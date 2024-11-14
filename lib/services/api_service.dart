@@ -5,6 +5,7 @@ import 'package:ayurvedic_centre/main.dart';
 import 'package:ayurvedic_centre/models/patientModel.dart';
 import 'package:ayurvedic_centre/models/trearment.dart';
 import 'package:http/http.dart' as http;
+import 'package:permission_handler/permission_handler.dart';
 // import 'package:path_provider/path_provider.dart';
 
 import '../core/common/genetatePdf.dart';
@@ -38,6 +39,8 @@ Future<Map<String, dynamic>>? fetchPatients() async {
 // print(data.runtimeType);
 
      var data = json.decode(response.body);
+
+
 
       // print(data[0].keys.toList());
      // Map test ={};
@@ -94,11 +97,13 @@ Future<Map<String, dynamic>>? fetchPatients() async {
         // print(response.body);
         Map<String,dynamic> data = jsonDecode(response.body);
 
-        print(data.keys);
-
-        for(var docs in data.values.toList()){
-          print(docs.runtimeType);
-        }
+        // downloadAndSaveJson(data);
+        // print(data);
+        // print(data.keys);
+        //
+        // for(var docs in data.values.toList()){
+        //   print(docs.runtimeType);
+        // }
         // print(data.values.toList().runtimeType);
 
         return  TreatmentModel.fromJson(data)
@@ -107,7 +112,7 @@ Future<Map<String, dynamic>>? fetchPatients() async {
         throw Exception('Failed to load treatments');
       }
     }catch(e){
-      print(e);
+      // print(e);
     }
   }
 
@@ -190,3 +195,38 @@ Future<Map<String, dynamic>>? fetchPatients() async {
 
 
 
+Future<void> requestPermission() async {
+  PermissionStatus status = await Permission.storage.request();
+  if (status.isGranted) {
+    print("Storage permission granted");
+  } else {
+    print("Storage permission denied");
+  }
+}
+Future<void> downloadAndSaveJson(Map url) async {
+  // Request permission to access storage
+  await requestPermission();
+
+  try {
+    // Make the API request to fetch the JSON data
+    // final response = await http.get(Uri.parse(url));
+
+    // if (response.statusCode == 200) {
+      // Get the device's external storage directory
+      final directory = await getExternalStorageDirectory();
+     final downloadsPath = '/storage/emulated/0/Download'; // Android Downloads folder
+      final filePath = '$downloadsPath/treatment.json';
+
+      // Write the JSON response to a file
+      final file = File(filePath);
+      await file.writeAsString(jsonEncode(url));
+
+      print("File downloaded to: $filePath");
+    // } else {
+    //   print("Failed to fetch data. Status code: ${response.statusCode}");
+    // }
+  } catch (e) {
+    print("Error downloading file: $e");
+  }
+
+}
