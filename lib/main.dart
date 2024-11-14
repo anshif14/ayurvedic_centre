@@ -1,10 +1,14 @@
 import 'package:ayurvedic_centre/features/auth/screens/splashScreen.dart';
+import 'package:ayurvedic_centre/features/register/screens/RegisterScreen.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
 import 'core/providers/authProvider.dart';
+import 'core/providers/branch_provider.dart';
 import 'core/providers/patient_provider.dart';
+import 'core/providers/treatment_provider.dart';
 import 'features/auth/controller/auth_controller.dart';
 import 'features/home/screens/home_screen.dart';
 
@@ -36,6 +40,8 @@ class _MyAppState extends State<MyApp> {
       providers: [
         ChangeNotifierProvider(create: (_) => LoginProvider()),
         ChangeNotifierProvider(create: (_) => PatientProvider()),
+        ChangeNotifierProvider(create: (_) => BranchProvider()),
+        ChangeNotifierProvider(create: (_) => TreatmentProvider()),
       ],
       child:  GestureDetector(
         onTap: () {
@@ -46,7 +52,7 @@ class _MyAppState extends State<MyApp> {
             textTheme: GoogleFonts.poppinsTextTheme()
           ),
           debugShowCheckedModeBanner: false,
-          home:Splashscreen() ,
+          home:  Splashscreen() ,
         ),
       ),
     );
