@@ -105,8 +105,10 @@ Future<Map<String, dynamic>>? fetchPatients() async {
         //   print(docs.runtimeType);
         // }
         // print(data.values.toList().runtimeType);
+    TreatmentModel treatmentModel = TreatmentModel(status: false, message: "error", treatments: []);
+    treatmentModel =  TreatmentModel.fromJson(data);
+        return treatmentModel
 
-        return  TreatmentModel.fromJson(data)
         ; // Extract treatment names
       } else {
         throw Exception('Failed to load treatments');
@@ -116,73 +118,100 @@ Future<Map<String, dynamic>>? fetchPatients() async {
     }
   }
 
+  Future<Map<String, dynamic>> registerPatient(Map<String, dynamic> patientData) async {
+    final url = Uri.parse('${baseUrl}PatientUpdate');
 
+    try {
 
-  Future<void> registerPatient({
-    required String name,
-    required String executive,
-    required String payment,
-    required String phone,
-    required String address,
-    required double totalAmount,
-    required double discountAmount,
-    required double advanceAmount,
-    required double balanceAmount,
-    required String dateNdTime,
-    required String maleTreatments,
-    required String femaleTreatments,
-    required String branch,
-    required List<int> treatments,
-  }) async {
-    final url = Uri.parse('https://your-api-url/PatientUpdate');
-    final response = await http.post(
-      url,
-      body: json.encode({
-        'name': name,
-        'excecutive': executive,
-        'payment': payment,
-        'phone': phone,
-        'address': address,
-        'total_amount': totalAmount,
-        'discount_amount': discountAmount,
-        'advance_amount': advanceAmount,
-        'balance_amount': balanceAmount,
-        'date_nd_time': dateNdTime,
-        'id': '', // Empty string as instructed
-        'male': maleTreatments,
-        'female': femaleTreatments,
-        'branch': branch,
-        'treatments': treatments.join(','),
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    );
-
-    if (response.statusCode == 200) {
-      print('Patient registered successfully');
-      // Optionally, you can generate the PDF here
-      generatePdf(
-        name: name,
-        executive: executive,
-        payment: payment,
-        phone: phone,
-        address: address,
-        totalAmount: totalAmount,
-        discountAmount: discountAmount,
-        advanceAmount: advanceAmount,
-        balanceAmount: balanceAmount,
-        dateNdTime: dateNdTime,
-        maleTreatments: maleTreatments,
-        femaleTreatments: femaleTreatments,
-        branch: branch,
-        treatments: treatments,
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $currentUserToken',
+        },
+        body: json.encode(patientData),
       );
-    } else {
-      print('Failed to register patient');
+print(response.statusCode);
+print(response.body);
+      if (response.statusCode == 200) {
+        return json.decode(response.body);
+      } else {
+        print('Error: ${response.statusCode}');
+        print('Response body: ${response.body}');
+        throw Exception('Failed to register patient');
+      }
+    } catch (e) {
+      print('Exception: $e');
       throw Exception('Failed to register patient');
     }
   }
+
+
+  // Future<void> registerPatient({
+  //   required String name,
+  //   required String executive,
+  //   required String payment,
+  //   required String phone,
+  //   required String address,
+  //   required double totalAmount,
+  //   required double discountAmount,
+  //   required double advanceAmount,
+  //   required double balanceAmount,
+  //   required String dateNdTime,
+  //   required String maleTreatments,
+  //   required String femaleTreatments,
+  //   required String branch,
+  //   required List<int> treatments,
+  // }) async {
+  //   final url = Uri.parse('https://your-api-url/PatientUpdate');
+  //   final response = await http.post(
+  //     url,
+  //     body: json.encode({
+  //       'name': name,
+  //       'excecutive': executive,
+  //       'payment': payment,
+  //       'phone': phone,
+  //       'address': address,
+  //       'total_amount': totalAmount,
+  //       'discount_amount': discountAmount,
+  //       'advance_amount': advanceAmount,
+  //       'balance_amount': balanceAmount,
+  //       'date_nd_time': dateNdTime,
+  //       'id': '', // Empty string as instructed
+  //       'male': maleTreatments,
+  //       'female': femaleTreatments,
+  //       'branch': branch,
+  //       'treatments': treatments.join(','),
+  //     }),
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   );
+  //
+  //   if (response.statusCode == 200) {
+  //     print('Patient registered successfully');
+  //     // Optionally, you can generate the PDF here
+  //     generatePdf(
+  //       name: name,
+  //       executive: executive,
+  //       payment: payment,
+  //       phone: phone,
+  //       address: address,
+  //       totalAmount: totalAmount,
+  //       discountAmount: discountAmount,
+  //       advanceAmount: advanceAmount,
+  //       balanceAmount: balanceAmount,
+  //       dateNdTime: dateNdTime,
+  //       maleTreatments: maleTreatments,
+  //       femaleTreatments: femaleTreatments,
+  //       branch: branch,
+  //       treatments: treatments,
+  //     );
+  //   } else {
+  //     print('Failed to register patient');
+  //     throw Exception('Failed to register patient');
+  //   }
+  // }
   }
 
 

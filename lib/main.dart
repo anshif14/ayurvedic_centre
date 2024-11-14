@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'core/providers/authProvider.dart';
 import 'core/providers/branch_provider.dart';
+import 'core/providers/patientListProvider.dart';
 import 'core/providers/patient_provider.dart';
 import 'core/providers/treatment_provider.dart';
 import 'features/auth/controller/auth_controller.dart';
@@ -42,6 +43,8 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => PatientProvider()),
         ChangeNotifierProvider(create: (_) => BranchProvider()),
         ChangeNotifierProvider(create: (_) => TreatmentProvider()),
+        ChangeNotifierProvider(create: (_) => PatientListProvider()),
+
       ],
       child:  GestureDetector(
         onTap: () {

@@ -21,9 +21,11 @@ class TreatmentProvider with ChangeNotifier {
 
 
       // Fetch the data from API
-      TreatmentModel treatmentResponse = await ApiService().fetchTreatments();
 
-print(treatmentResponse.treatments);
+
+      TreatmentModel treatmentResponse = await ApiService().fetchTreatments()??TreatmentModel(status: false, message: "error", treatments: []);
+
+// print(treatmentResponse.treatments);
       // _treatments = treatmentResponse.branches;
       return treatmentResponse;
     }

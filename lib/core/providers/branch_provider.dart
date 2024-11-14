@@ -12,7 +12,7 @@ class BranchProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  Future<void> fetchBranches() async {
+  Future<List<Branch>> fetchBranches() async {
 
 
     _isLoading = true;
@@ -25,11 +25,11 @@ class BranchProvider with ChangeNotifier {
 
 
       _branches = branchResponse.branches;
-
+return _branches;
     } catch (error) {
       // Handle any errors, setting an error message
       _errorMessage = "Failed to load branches: $error";
-      _branches = []; // Set branches to an empty list on error
+    return  _branches = []; // Set branches to an empty list on error
     }
 
     _isLoading = false;
