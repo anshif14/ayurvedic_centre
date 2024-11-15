@@ -80,6 +80,7 @@ import 'dart:convert';
 
 import 'package:ayurvedic_centre/models/patientModel.dart';
 import 'package:ayurvedic_centre/services/api_service.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -87,8 +88,10 @@ import 'package:intl/intl.dart';
 class PatientProvider with ChangeNotifier {
   Patient? patients;
   bool _isLoading = false;
+  bool _isSubmitLoading = false;
 
   bool get isLoading => _isLoading;
+  bool get isSubmitLoading => _isSubmitLoading;
 
   final ApiService _apiService = ApiService();
 
@@ -147,11 +150,11 @@ class PatientProvider with ChangeNotifier {
   required  String payment,
   required   String phone,
   required   String address,
-  required  String totalAmount,
-  required  String discountAmount,
-  required  String advanceAmount,
-  required  String balanceAmount,
-  required  String dateAndTime,
+  required  double totalAmount,
+  required  double discountAmount,
+  required  double advanceAmount,
+  required  double balanceAmount,
+  required  String date_nd_time,
   required   String id  ,
   required  String male ,
   required  String female,
@@ -164,43 +167,64 @@ class PatientProvider with ChangeNotifier {
     male = '1,2,3';
     female = '1,2,3';
     treatments = '1,2,3';
-    _isLoading = true;
-    final patientData = {
+    _isSubmitLoading = true;
 
+    FormData formData = FormData.fromMap({
       'name': name ?? '',
       'executive': executive ?? '',
       'payment': payment ?? '',
       'phone': phone ?? '',
       'address': address ?? '',
-      'total_amount': (double.tryParse(totalAmount ?? '0.0') ?? 0.0).toString(),
-      'discount_amount': (double.tryParse(discountAmount ?? '0.0') ?? 0.0).toString(),
-      'advance_amount': (double.tryParse(advanceAmount ?? '0.0') ?? 0.0).toString(),
-      'balance_amount': (double.tryParse(balanceAmount ?? '0.0') ?? 0.0).toString(),
-      'date_nd_time': dateAndTime ?? '',
-      'id': id,
+      'total_amount': (totalAmount ?? '0.0'),
+      'discount_amount': discountAmount ??  0.0,
+      'advance_amount': advanceAmount ??  0.0,
+      'balance_amount': balanceAmount ??0 ,
+      'date_nd_time': date_nd_time ?? '',
+      'id': 0,
       'male': male.isNotEmpty ? male : '',
       'female': female.isNotEmpty ? female : '',
       'branch': branch ?? '',
-      'treatments': treatments?.isNotEmpty == true ? treatments : '',
-    };
-    print(patientData);
-    final minimalData = {
-      'name': name ?? '',
-      'executive': executive ?? '',
-      'phone': phone ?? '',
-      'branch': branch ?? '',
-      'treatments': treatments ?? '',
-    };
+      'treatments': treatments.isNotEmpty == true ? treatments : '',
+    });
+    // final patientData = {
+    //
+    //
+    //
+    //
+    //   'name': name ?? '',
+    //   'executive': executive ?? '',
+    //   'payment': payment ?? '',
+    //   'phone': phone ?? '',
+    //   'address': address ?? '',
+    //   'total_amount': (totalAmount ?? '0.0'),
+    //   'discount_amount': discountAmount ??  0.0,
+    //   'advance_amount': advanceAmount ??  0.0,
+    //   'balance_amount': balanceAmount ??0 ,
+    //   'date_nd_time': dateAndTime ?? '',
+    //   'id': '',
+    //   'male': male.isNotEmpty ? male : '',
+    //   'female': female.isNotEmpty ? female : '',
+    //   'branch': branch ?? '',
+    //   'treatments': treatments?.isNotEmpty == true ? treatments : '',
+    // };
+    // print(patientData);
+    // final minimalData = {
+    //   'name': name ?? '',
+    //   'executive': executive ?? '',
+    //   'phone': phone ?? '',
+    //   'branch': branch ?? '',
+    //   'treatments': treatments ?? '',
+    // };
     try {
-      final response = await _apiServices.registerPatient(patientData);
+      final response = await _apiServices.registerPatient(formData);
       print(response);
 
-      _isLoading = false;
+      _isSubmitLoading = false;
       // print(response.)
       // Handle response (e.g., update UI, show success message)
       notifyListeners();
     } catch (error) {
-      _isLoading = false;
+      _isSubmitLoading = false;
 
       // Handle error (e.g., show error message)
       print(error);

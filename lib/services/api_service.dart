@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:ayurvedic_centre/main.dart';
 import 'package:ayurvedic_centre/models/patientModel.dart';
 import 'package:ayurvedic_centre/models/trearment.dart';
+import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 // import 'package:path_provider/path_provider.dart';
@@ -118,26 +119,47 @@ Future<Map<String, dynamic>>? fetchPatients() async {
     }
   }
 
-  Future<Map<String, dynamic>> registerPatient(Map<String, dynamic> patientData) async {
-    final url = Uri.parse('${baseUrl}PatientUpdate');
+  Future<Map<String, dynamic>> registerPatient(
 
+      // Map<String, dynamic> patientData
+      FormData formData
+
+      ) async {
+
+  Dio dio = Dio();
+    final url = Uri.parse('${baseUrl}PatientUpdate');
+  dio.options.headers = {
+    "Authorization": "Bearer $currentUserToken", // Replace with your token
+    "Content-Type": "multipart/form-data",
+  };
     try {
 
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $currentUserToken',
-        },
-        body: json.encode(patientData),
+
+
+      final response = await dio.post(
+        '${baseUrl}PatientUpdate',
+       data: formData,
+
       );
+
+      http.Response response2 = await http.post(url, body: formData,
+        headers: {
+        'Authorization': 'Bearer $currentUserToken',
+        'Content-Type': 'application/json',
+        },
+      );
+
+      print(response2.statusCode);
+      print(response2.body);
+      print("response2.body");
+
 print(response.statusCode);
-print(response.body);
+print(response.data);
       if (response.statusCode == 200) {
-        return json.decode(response.body);
+        return json.decode(response.data);
       } else {
         print('Error: ${response.statusCode}');
-        print('Response body: ${response.body}');
+        print('Response body: ${response.data}');
         throw Exception('Failed to register patient');
       }
     } catch (e) {

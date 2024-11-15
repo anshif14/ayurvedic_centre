@@ -611,32 +611,13 @@ getBranches();
                       return;
                     }
 
-                    // GeneratePdfModel   pdfModel =
 
-                    // kDebugMode?
-                    // GeneratePdfModel(
-                    //      name: "John Doe",
-                    //      executive: "Dr. Smith",
-                    //      payment: "Cash",
-                    //      phone: "1234567890",
-                    //      address: "Kochi, Kerala",
-                    //      totalAmount: 1000.0,
-                    //      discountAmount: 100.0,
-                    //      advanceAmount: 200.0,
-                    //      balanceAmount: 700.0,
-                    //      dateNdTime: "01/02/2024-10:24 AM",
-                    //      maleTreatments: "1,2",
-                    //      femaleTreatments: "3,4",
-                    //      branch: selectedBranch.toString(),
-                    //      treatments: selectedTreatments
-                    //
-                    //    ):
 
                     for (var docs in patientListProvider.patientList) {
                       print(docs["maleCount"]);
                       print(docs["femaleCount"]);
-                      maleCount = maleCount + docs["maleCount"];
-                      femaleCount = femaleCount + docs["femaleCount"];
+                      maleCount = maleCount + num.parse(docs["maleCount"].toString());
+                      femaleCount = femaleCount + num.parse(docs["femaleCount"].toString());
                     }
 
                     ///=================================
@@ -664,26 +645,7 @@ getBranches();
 
                     generatePdfFunction(pdfModel: pdfModel);
 
-                    // generatePdf(
-                    //     name: nameController.text,
-                    //     executive: 'execuove',
-                    //     payment: paymentOption.toString(),
-                    //     phone: whatsappController.text,
-                    //     address: addressController.text,
-                    //     totalAmount:
-                    //         double.tryParse(totalAmountController.text) ?? 0,
-                    //     discountAmount:
-                    //         double.tryParse(discountAmountController.text) ?? 0,
-                    //     advanceAmount:
-                    //         double.tryParse(advanceAmountController.text) ?? 0,
-                    //     balanceAmount:
-                    //         double.tryParse(balanceAmountController.text) ?? 0,
-                    //     dateNdTime: treatmentDate.toString(),
-                    //     maleTreatments: maleCount.toString(),
-                    //     femaleTreatments: femaleCount.toString(),
-                    //     branch: selectedBranch.toString(),
-                    //     treatments: selectedTreatments);
-                    ///===========================
+
 
                     patientProvider.registerPatient(
                       id: '',
@@ -693,14 +655,14 @@ getBranches();
                         phone: whatsappController.text,
                         address: addressController.text,
                         totalAmount:
-                        (double.tryParse(totalAmountController.text) ?? 0).toString(),
+                        (double.tryParse(totalAmountController.text) ?? 0),
                         discountAmount:
-                        (double.tryParse(discountAmountController.text) ?? 0).toString(),
+                        (double.tryParse(discountAmountController.text) ?? 0),
                         advanceAmount:
-                        (double.tryParse(advanceAmountController.text) ?? 0).toString(),
+                        (double.tryParse(advanceAmountController.text) ?? 0),
                         balanceAmount:
-                        (double.tryParse(balanceAmountController.text) ?? 0).toString(),
-                        dateAndTime: DateFormat('dd/MM/yyyy').format(treatmentDate!),
+                        (double.tryParse(balanceAmountController.text) ?? 0),
+                        date_nd_time: DateFormat('dd/MM/yyyy').format(treatmentDate!),
                         male: maleCount.toString(),
                         female: femaleCount.toString(),
                         branch: selectedBranch.toString(),
@@ -714,7 +676,7 @@ getBranches();
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 15),
-                    child:patientProvider.isLoading?
+                    child:patientProvider.isSubmitLoading?
                     CircularProgressIndicator(
                       color: Colors.white,
                     ):
